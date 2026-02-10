@@ -1,0 +1,45 @@
+name: Jekyll site CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.1'
+        bundler-cache: true
+        
+    - name: Install dependencies
+      run: bundle install
+        
+    - name: Build site
+      run: bundle exec jekyll build
+      
+    - name: Test site
+      run: |
+        # 检查构建是否成功
+        if [ -d "_site" ]; then
+          echo "✅ Site built successfully"
+          echo "Total files: $(find _site -type f | wc -l)"
+        else
+          echo "❌ Site build failed"
+          exit 1
+        fi
+        
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./_site
+        cname: smart-contract-security.guide  # 可选：自定义域名

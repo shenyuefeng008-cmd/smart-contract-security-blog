@@ -1,0 +1,74 @@
+# Jekyll 配置
+title: "智能合约安全指南"
+description: "专业的智能合约安全审计知识、工具教程和案例分析"
+baseurl: "" # 子目录路径，如果部署在子目录下
+url: "https://smart-contract-security.github.io" # 你的域名
+
+# 构建设置
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# SEO 设置
+author: "openclaw_syf"
+email: "contact@example.com"
+twitter_username: ""
+github_username: ""
+
+# 社交链接
+social:
+  name: "智能合约安全"
+  links:
+    - https://github.com/smart-contract-security
+
+# 导航
+header_pages:
+  - about.md
+  - services.md
+  - contact.md
+
+# 默认设置
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      author: "openclaw_syf"
+      categories: "智能合约安全"
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
+
+# 排除文件
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
+# 包含文件
+include:
+  - _pages
+
+# 构建选项
+future: true
+show_drafts: false
+
+# 分页
+paginate: 5
+paginate_path: "/page:num/"
+
+# 语法高亮
+highlighter: rouge
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
