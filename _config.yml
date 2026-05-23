@@ -1,8 +1,8 @@
 # Jekyll 配置
 title: "智能合约安全指南"
 description: "专业的智能合约安全审计知识、工具教程和案例分析"
-baseurl: "" # 子目录路径，如果部署在子目录下
-url: "https://smart-contract-security.github.io" # 你的域名
+baseurl: "/smart-contract-security-blog" # 子目录路径，如果部署在子目录下
+url: "https://shenyuefeng008-cmd.github.io" # 你的域名
 
 # 构建设置
 markdown: kramdown
