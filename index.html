@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>龙虾方法论 — 用AI选股，用数据验证</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fafafa;--card:#fff;--border:#e8e8e8;
+  --accent:#635bff;--accent-light:rgba(99,91,255,.08);
+  --text:#0a0a0a;--dim:#6b7280;--light:#9ca3af;
+  --red:#dc2626;--green:#16a34a;
+  --serif:'Noto Serif SC',Georgia,'Times New Roman',serif;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.6}
+a{color:inherit;text-decoration:none}
+
+/* ─── Nav ─── */
+.Nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.Nav-inner{max-width:1120px;margin:0 auto;padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.Nav-logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:14.5px;color:var(--text);letter-spacing:-.2px}
+.Nav-logo .icon{font-size:20px}
+.Nav-logo span{font-family:var(--serif)}
+.Nav-links{display:flex;gap:28px;font-size:13.5px;font-weight:500;color:var(--dim)}
+.Nav-links a{transition:color .12s}
+.Nav-links a:hover,.Nav-links a.active{color:var(--text)}
+
+/* ─── Banner ─── */
+.Banner{background:var(--text);color:#fff;padding:48px 0 44px}
+.Banner-inner{max-width:1120px;margin:0 auto;padding:0 32px}
+.Banner-tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--accent);opacity:.85;margin-bottom:14px}
+.Banner h1{font-family:var(--serif);font-size:28px;font-weight:700;line-height:1.3;letter-spacing:-.4px;margin-bottom:12px;max-width:640px}
+.Banner p{font-size:14.5px;line-height:1.75;color:rgba(255,255,255,.55);max-width:560px}
+.Banner .scroll-hint{margin-top:20px;font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.5px}
+
+/* ─── Stats ─── */
+.Stats{max-width:1120px;margin:-28px auto 0;padding:0 32px;position:relative;z-index:2}
+.Stats-inner{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.04);padding:24px 32px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.Stat .s-num{font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.Stat .s-label{font-size:11px;color:var(--light);margin-top:4px;font-weight:500}
+@media(max-width:640px){.Stats-inner{grid-template-columns:1fr 1fr}}
+
+/* ─── Main ─── */
+.Main{max-width:1120px;margin:0 auto;padding:40px 32px 64px}
+
+/* ─── Section title ─── */
+.SecTitle{font-family:var(--serif);font-size:18px;font-weight:700;margin-bottom:24px;color:var(--text);display:flex;align-items:center;gap:8px}
+
+/* ─── Article Grid ─── */
+.ArticleGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px}
+@media(max-width:900px){.ArticleGrid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.ArticleGrid{grid-template-columns:1fr}}
+
+.ArticleCard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px 24px 20px;cursor:pointer;transition:box-shadow .15s,border-color .15s}
+.ArticleCard:hover{box-shadow:0 2px 12px rgba(0,0,0,.06);border-color:#d1d5db}
+.AC-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;display:inline-block;padding:2px 8px;border-radius:4px}
+.tag-blue{color:var(--accent);background:var(--accent-light)}
+.tag-green{color:var(--green);background:rgba(22,163,74,.08)}
+.tag-red{color:var(--red);background:rgba(220,38,38,.08)}
+.tag-yellow{color:#d97706;background:rgba(217,119,6,.08)}
+.AC-title{font-family:var(--serif);font-size:15.5px;font-weight:700;line-height:1.45;margin-bottom:8px;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.AC-excerpt{font-size:13px;line-height:1.65;color:var(--dim);margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.AC-meta{font-size:11.5px;color:var(--light);display:flex;gap:8px;align-items:center}
+.AC-meta .sep{width:2px;height:2px;border-radius:50%;background:var(--light)}
+
+/* ─── Changelog ─── */
+.Changelog{margin-bottom:48px}
+.Changelog-list{display:flex;flex-direction:column;gap:0}
+.CL-item{border-left:2px solid var(--border);padding:0 0 28px 24px;position:relative}
+.CL-item:last-child{padding-bottom:0}
+.CL-item::before{content:'';position:absolute;left:-5px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.CL-item .cl-date{font-size:11px;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.CL-item .cl-title{font-family:var(--serif);font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.CL-item .cl-body{font-size:13px;line-height:1.7;color:var(--dim)}
+.CL-item .cl-tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.4px;padding:1px 6px;border-radius:3px;margin-right:4px;vertical-align:middle}
+.cl-fix{color:var(--green);background:rgba(22,163,74,.08)}
+.cl-feat{color:var(--accent);background:var(--accent-light)}
+.cl-bug{color:var(--red);background:rgba(220,38,38,.08)}
+
+/* ─── Method Grid ─── */
+.MethodGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:48px}
+@media(max-width:768px){.MethodGrid{grid-template-columns:1fr}}
+.MethodCard{border:1px solid var(--border);border-radius:10px;padding:24px;background:var(--card)}
+.MethodCard .mc-icon{font-size:22px;margin-bottom:12px;opacity:.7}
+.MethodCard h4{font-family:var(--serif);font-size:15px;font-weight:700;margin-bottom:7px;color:var(--text)}
+.MethodCard p{font-size:13px;line-height:1.7;color:var(--dim)}
+
+/* ─── Footer ─── */
+.Footer{border-top:1px solid var(--border);padding:36px 32px;text-align:center}
+.Footer .disclaimer{font-size:11.5px;color:#d97706;font-weight:600;margin-bottom:6px}
+.Footer .copy{font-size:11.5px;color:var(--light)}
+
+/* ══════ ARTICLE DETAIL ══════ */
+.ArticleDetail{max-width:680px;margin:0 auto;padding:48px 32px 64px}
+.AD-back{font-size:13px;font-weight:500;color:var(--accent);margin-bottom:28px;display:inline-flex;align-items:center;gap:4px;cursor:pointer}
+.AD-back:hover{text-decoration:underline}
+.AD-tags{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.AD-tag{font-size:10px;font-weight:600;letter-spacing:.5px;padding:2px 8px;border-radius:4px}
+.AD h1{font-family:var(--serif);font-size:26px;font-weight:700;line-height:1.3;letter-spacing:-.3px;margin-bottom:14px;color:var(--text)}
+.AD h2{font-family:var(--serif);font-size:20px;font-weight:700;margin:36px 0 14px;color:var(--text);letter-spacing:-.2px}
+.AD h3{font-size:15px;font-weight:600;margin:24px 0 10px;color:var(--text)}
+.AD p{font-size:15px;line-height:1.85;color:#374151;margin-bottom:14px}
+.AD blockquote{border-left:3px solid var(--accent);padding:10px 18px;margin:20px 0;font-size:14px;color:var(--dim);background:var(--accent-light);border-radius:0 8px 8px 0;line-height:1.7}
+.AD .box{border-radius:9px;padding:16px 20px;margin:20px 0;font-size:13.5px;line-height:1.7}
+.AD .box-g{background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d}
+.AD .box-r{background:#fef2f2;border:1px solid #fecaca;color:#7f1d1d}
+.AD .box-b{background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a5f}
+.AD table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px}
+.AD th{text-align:left;padding:8px 12px;border-bottom:2px solid var(--border);font-weight:600;font-size:11px;color:var(--light);text-transform:uppercase;letter-spacing:.5px}
+.AD td{padding:8px 12px;border-bottom:1px solid var(--border);font-size:13.5px}
+.win{color:var(--green);font-weight:700}
+.loss{color:var(--red);font-weight:700}
+
+/* ─── Page toggle ─── */
+.page-list,.page-detail{display:none}
+.page-list.active,.page-detail.active{display:block}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="Nav">
+  <div class="Nav-inner">
+    <a href="#" class="Nav-logo" onclick="showList()">
+      <span class="icon">🦞</span>
+      <span>龙虾方法论</span>
+    </a>
+    <div class="Nav-links">
+      <a href="#" class="active">博客</a>
+      <a href="#changelog">更新日志</a>
+      <a href="#method">方法论</a>
+      <a href="#stats">数据</a>
+      <a href="#about">关于</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════ LIST PAGE ══════ -->
+<div class="page-list active">
+
+  <!-- Banner -->
+  <div class="Banner">
+    <div class="Banner-inner">
+      <div class="Banner-tag">方法论验证实验</div>
+      <h1>用AI选股，用数据验证</h1>
+      <p>每天一篇深度文章，记录AI选股的逻辑选择与成果验证。不预测，不荐股——只把思考过程和结果全部公开，让数据说话。</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="Stats">
+    <div class="Stats-inner">
+      <div class="Stat"><div class="s-num">4</div><div class="s-label">已发布文章</div></div>
+      <div class="Stat"><div class="s-num" style="color:var(--green)">50%</div><div class="s-label">整体命中率</div></div>
+      <div class="Stat"><div class="s-num">1.034</div><div class="s-label">模拟仓净值</div></div>
+      <div class="Stat"><div class="s-num" style="color:var(--green)">+3.4%</div><div class="s-label">累计收益</div></div>
+    </div>
+  </div>
+
+  <div class="Main">
+
+    <!-- Latest -->
+    <div id="latest">
+      <div class="SecTitle">📝 最新文章</div>
+      <div class="ArticleGrid">
+
+                <div class="ArticleCard" onclick="showArticle('closing_0522')">
+          <div class="AC-tag tag-blue">收盘复盘</div>
+          <div class="AC-title">5月22日 收盘复盘：全天情绪与选股验证</div>
+          <div class="AC-excerpt">2026年5月22日</div>
+          <div class="AC-meta"><span>5月22日</span><span class="sep"></span><span>自动生成</span></div>
+        </div>
+<div class="ArticleCard" onclick="showArticle('0522')">
+          <div class="AC-tag tag-red">冰点日复盘</div>
+          <div class="AC-title">冰点日的选择：当667只股票上涨时，AI为什么选了这三只</div>
+          <div class="AC-excerpt">今天市场跌到冰点——667涨/4490跌，跌停69只超过涨停36只。1.0维度分歧低吸信号触发，三孚股份盘中买入。</div>
+          <div class="AC-meta"><span>5月22日</span><span class="sep"></span><span>8 min</span></div>
+        </div>
+
+        <div class="ArticleCard" onclick="showArticle('0521')">
+          <div class="AC-tag tag-yellow">止损复盘</div>
+          <div class="AC-title">华工科技止损-3.2%：3.0趋势低吸在冰点区的致命盲区</div>
+          <div class="AC-excerpt">3.0维度趋势低吸策略在冰点区的第一次失败案例。复盘发现冰点区3.0本应熔断，但系统未严格执行。</div>
+          <div class="AC-meta"><span>5月21日</span><span class="sep"></span><span>6 min</span></div>
+        </div>
+
+        <div class="ArticleCard" onclick="showArticle('0520')">
+          <div class="AC-tag tag-blue">系统进化</div>
+          <div class="AC-title">规则体系v2.4审计：从16处取价bug到全量参数化</div>
+          <div class="AC-excerpt">全量审计发现16处qt.gtimg.cn取价bug，阈值散落在规则文档、脚本、cron中。v2.4将所有阈值参数化。</div>
+          <div class="AC-meta"><span>5月20日</span><span class="sep"></span><span>10 min</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Archive -->
+    <div style="margin-bottom:48px">
+      <div class="SecTitle">📚 往期归档</div>
+      <div class="ArticleGrid">
+        <div class="ArticleCard" onclick="showArticle('0519')">
+          <div class="AC-tag tag-green">正向验证</div>
+          <div class="AC-title">京能电力+7.26%：一进二逻辑在高潮期的第一次验证</div>
+          <div class="AC-excerpt">龙虾系统运行以来第一次正向验证。京能电力+7.26%，但蔚蓝锂芯-2.01%。一胜一负，拆解逻辑差异。</div>
+          <div class="AC-meta"><span>5月19日</span><span class="sep"></span><span>7 min</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Changelog (NEW) -->
+    <div class="Changelog" id="changelog">
+      <div class="SecTitle">📋 版本更新日志</div>
+      <div class="Changelog-list">
+
+        <div class="CL-item">
+          <div class="cl-date">2026-05-22 · v2.4.1</div>
+          <div class="cl-title">博客v1.0上线 · 移除留言 · 新增更新日志</div>
+          <div class="cl-body">
+            <span class="cl-tag cl-feat">新增</span>首页增加「版本更新日志」板块，记录系统每次迭代细节<br>
+            <span class="cl-tag cl-feat">新增</span>导航栏增加「更新日志」入口，点击锚定到对应板块<br>
+            <span class="cl-tag cl-fix">优化</span>移除文章底部留言系统（utterances），简化页面结构<br>
+            <span class="cl-tag cl-fix">优化</span>博客UI全面重做，参考Stripe Blog风格，改为浅色极简排版<br>
+            <span class="cl-tag cl-fix">优化</span>文章卡片去掉缩略图，改为纯文字扫描式设计<br>
+            <span class="cl-tag cl-bug">修复</span>文章详情页JS中 &lt;/script&gt; 字符串提前闭合导致脚本失效的bug
+          </div>
+        </div>
+
+        <div class="CL-item">
+          <div class="cl-date">2026-05-20 · v2.4</div>
+          <div class="cl-title">规则体系全量审计 · 参数化统一</div>
+          <div class="cl-body">
+            <span class="cl-tag cl-bug">修复</span>qt.gtimg.cn取价bug：全系统16处 p[3]（昨收）误用为现价，改为 p[4]<br>
+            <span class="cl-tag cl-fix">优化</span>所有阈值参数化写入 lobster-config.json，Python脚本统一从config读取<br>
+            <span class="cl-tag cl-fix">优化</span>情绪区间从4段改为5段，新增1500-2000区间（1.0主导+3.0熔断）<br>
+            <span class="cl-tag cl-fix">优化</span>JSON格式错误2处、版本号遗漏4处，全部修复统一v2.4<br>
+            <span class="cl-tag cl-feat">新增</span>每日进化任务新增P1步骤：cron任务间/tmp文件连通性扫描
+          </div>
+        </div>
+
+        <div class="CL-item">
+          <div class="cl-date">2026-05-19 · v2.3</div>
+          <div class="cl-title">模拟交易闭环实现 · 首次正向验证</div>
+          <div class="cl-body">
+            <span class="cl-tag cl-feat">新增</span>监测到买点自动模拟买入，到达卖点自动模拟卖出，遵循T+1规则<br>
+            <span class="cl-tag cl-feat">新增</span>分时止盈逻辑：以昨日最高价为参考设置动态止盈点<br>
+            <span class="cl-tag cl-fix">优化</span>模拟仓审计修复10个问题（冰点区全仓买入、sell不查can_sell等）<br>
+            <span class="cl-tag cl-feat">正向</span>京能电力+7.26%，系统运行以来首次正向验证 ✅
+          </div>
+        </div>
+
+        <div class="CL-item">
+          <div class="cl-date">2026-05-16 · v2.0</div>
+          <div class="cl-title">龙虾系统正式上线</div>
+          <div class="cl-body">
+            <span class="cl-tag cl-feat">新增</span>三维度框架（点·线·面）正式上线<br>
+            <span class="cl-tag cl-feat">新增</span>情绪周期驱动：涨跌家数决定主导维度+仓位上限<br>
+            <span class="cl-tag cl-feat">新增</span>8个cron定时任务覆盖盘前/盘中/收盘/进化全时段<br>
+            <span class="cl-tag cl-feat">新增</span>IMA知识库同步，所有任务完成后自动归档
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Methodology -->
+    <div id="method" style="margin-bottom:48px">
+      <div class="SecTitle">🧠 方法论</div>
+      <div class="MethodGrid">
+        <div class="MethodCard">
+          <div class="mc-icon">📍</div>
+          <h4>三维度框架：点·线·面</h4>
+          <p>1.0点（打板）找个股分歧机会，2.0线（板块轮动）找行业爆发节点，3.0面（容量趋势）找产业长线逻辑。三维度由情绪周期决定谁主导。</p>
+        </div>
+        <div class="MethodCard">
+          <div class="mc-icon">🌊</div>
+          <h4>情绪周期驱动</h4>
+          <p>涨跌家数是唯一情绪指标。&lt;1500冰点→1.0主导5成上限。情绪决定维度，维度决定策略，策略决定标的。</p>
+        </div>
+        <div class="MethodCard">
+          <div class="mc-icon">🔍</div>
+          <h4>不预测，只验证</h4>
+          <p>每只选股的完整逻辑链路公开记录。目标不是"选对"，而是在足够多次验证后，方法论的整体命中率是否显著高于随机。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats detail -->
+    <div id="stats" style="margin-bottom:48px">
+      <div class="SecTitle">📊 数据验证</div>
+      <div style="border:1px solid var(--border);border-radius:10px;padding:24px;background:var(--card)">
+        <div style="font-size:13px;font-weight:600;color:var(--dim);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">各维度命中率</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="font-size:13px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>1.0 一进二</span><span style="color:var(--red);font-weight:700">33%</span></div>
+          <div style="font-size:13px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>1.0 分歧低吸</span><span style="color:var(--green);font-weight:700">67%</span></div>
+          <div style="font-size:13px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>2.0 板块卡位</span><span style="color:var(--light)">待验证</span></div>
+          <div style="font-size:13px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>3.0 趋势低吸</span><span style="color:var(--light)">1次失败</span></div>
+        </div>
+        <div style="font-size:11.5px;color:var(--light);margin-top:12px">⚠️ 样本量极小（4天/约10次选择），需2-4周数据才能初步验证</div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div id="about">
+      <div class="SecTitle">🦞 关于</div>
+      <div style="border:1px solid var(--border);border-radius:10px;padding:24px;background:var(--card);font-size:14px;line-height:1.8;color:var(--dim)">
+        <p style="margin-bottom:12px"><strong style="color:var(--text)">龙虾方法论</strong>是一个用AI系统进行A股短线选股的实验记录。基于龙虾超短交易系统v2.4，每天自动选出候选标的，公开记录逻辑与结果，用数据验证方法论。</p>
+        <p>系统每天00:00自动进化优化参数，周日20:00深度进化更新产业框架。所有变更记录在更新日志中。</p>
+      </div>
+    </div>
+
+  </div><!-- /Main -->
+</div><!-- /page-list -->
+
+<!-- ══════ ARTICLE DETAIL ══════ -->
+<div class="page-detail">
+  <div class="ArticleDetail AD" id="articleContent"></div>
+</div>
+
+<!-- Footer -->
+<div class="Footer">
+  <div class="disclaimer">⚠️ 本站仅为AI系统实验记录，不构成任何投资建议。股市有风险，入市需谨慎。</div>
+  <div class="copy">🦞 龙虾方法论 · 龙虾超短交易系统 v2.4 · 2026</div>
+</div>
+
+<script>
+const articles = {
+  'closing_0522': {
+    tags: [{"t": "收盘复盘", "c": "tag-blue"}, {"t": "数据验证", "c": "tag-yellow"}],
+    title: `5月22日 收盘复盘：全天情绪与选股验证`,
+    meta: `2026年5月22日 · 8 min read`,
+    body: `<blockquote>收盘复盘：全天市场总结、选股验证、模拟仓表现、经验教训。</blockquote>
+
+<h2>一、全天市场概览</h2>
+<div class="box-g">
+<strong>涨跌家数：</strong>上涨 3735 家，下跌 1218 家<br>
+<strong>情绪判定：</strong>极度高潮（辅助模式，仓位1-2成）
+</div>
+<table><tr><th>指数</th><th>涨跌幅</th></tr>
+<tr><td>上证指数</td><td class="green">+0.78%</td></tr>
+<tr><td>深证成指</td><td class="green">+1.14%</td></tr>
+<tr><td>创业板指</td><td class="green">+0.85%</td></tr>
+</table>
+
+<h2>二、今日选股验证</h2>
+<p>盘前候选标的及当日表现：</p>
+<table><tr><th>维度</th><th>标的</th><th>代码</th><th>结果</th><th>备注</th></tr>
+<tr><td>1.0一进二</td><td>金利华电</td><td>300069</td><td>✅涨停+20%</td><td>命中</td></tr>
+<tr><td>1.0一进二</td><td>福星股份</td><td>000926</td><td>❌未板-0.96%</td><td></td></tr>
+<tr><td>1.0一进二</td><td>盛景微</td><td>603375</td><td>中+3.26%</td><td></td></tr>
+<tr><td>1.0一进二</td><td>盛剑科技</td><td>603324</td><td>❌-7.33%</td><td></td></tr>
+<tr><td>1.0一进二</td><td>争光股份</td><td>301092</td><td>❌-1.93%</td><td></td></tr>
+<tr><td>1.0分歧低吸</td><td>合百集团</td><td>000417</td><td>✅涨停+9.99%</td><td>命中</td></tr>
+<tr><td>1.0分歧低吸</td><td>川润股份</td><td>002272</td><td>✅涨停+10.02%</td><td>命中</td></tr>
+<tr><td>1.0分歧低吸</td><td>诚邦股份</td><td>603316</td><td>❌-1.28%</td><td></td></tr>
+<tr><td>1.0分歧低吸</td><td>三孚股份</td><td>603938</td><td>❌-1.78%</td><td>分歧过大</td></tr>
+<tr><td>2.0板块卡位</td><td>兆易创新</td><td>603986</td><td>✅大阳+8.53%</td><td>半导体</td></tr>
+<tr><td>2.0板块卡位</td><td>晶方科技</td><td>603005</td><td>✅大阳+8.48%</td><td>半导体</td></tr>
+<tr><td>2.0板块卡位</td><td>杭电股份</td><td>603618</td><td>中+0.65%</td><td></td></tr>
+<tr><td>2.0板块卡位</td><td>银轮股份</td><td>002126</td><td>❌-0.92%</td><td></td></tr>
+</table>
+<p><strong>胜率 7/13（54%）| 平均涨幅 +3.59%</strong></p>
+<p><strong>竞价通过：</strong>无（极度高潮期正确休眠）</p>
+
+<h2>三、模拟仓表现</h2>
+<table><tr><th>持仓</th><th>成本</th><th>现价</th><th>盈亏</th><th>备注</th></tr>
+<tr><td>艾华集团</td><td>26.08</td><td>28.42</td><td class="green">+23,400 (+9.98%)</td><td>3.0趋势低吸</td></tr>
+<tr><td>三孚股份</td><td>50.73</td><td>49.68</td><td class="red">-5,250 (-1.78%)</td><td>1.0分歧低吸</td></tr>
+</table>
+<p><strong>总资产：</strong>1,028,155元（含现金 518,501元，持仓 514,654元）</p>
+
+<h2>四、经验与教训</h2>
+<ul>
+<li><strong>规则执行：</strong>极度高潮（3735家上涨）正确休眠1.0/2.0，未追高。</li>
+<li><strong>教训：</strong>三孚股份3连板后分歧低吸失败，分歧过大需加强过滤。</li>
+<li><strong>技术问题：</strong>发现收盘价格更新bug（IndexError静默吞异常），已修复。</li>
+<li><strong>明日策略：</strong>根据明日开盘情绪重新判定维度。</li>
+</ul>
+<p><strong>明日是否为交易日：</strong>否，周末休市。</p>
+
+<blockquote>数据来源于自动采集，仅供参考。股市有风险，入市需谨慎。</blockquote>`
+  },
+
+  '0522': {
+    tags: [{t:'冰点日复盘',c:'tag-red'},{t:'1.0分歧低吸',c:'tag-blue'},{t:'情绪周期',c:'tag-yellow'}],
+    title: '冰点日的选择：当667只股票上涨时，AI为什么选了这三只',
+    meta: '2026年5月22日 · 8 min read',
+    body: `<blockquote>不预测，不荐股。本文仅为AI系统的决策记录与事后复盘，用于验证方法论的有效性。</blockquote>
+
+<h2>一、今日市场环境</h2>
+<p>今天是一个典型的冰点日。</p>
+<div class="box box-r">
+<strong>情绪面板：</strong>上涨 667 · 下跌 4490 · 涨停 36 · 跌停 69<br>
+<strong>三大指数：</strong>上证 -2.04% · 深证 -2.07% · 创业板 -2.35%<br>
+<strong>情绪判定：</strong>冰点期（&lt;1500），1.0主导，仓位上限5成
+</div>
+<p>冰点期的核心规则是<strong>不追板</strong>。涨跌家数低于1500意味着市场极度弱势，打板成功率大幅下降。这时候唯一可操作的是1.0维度的"分歧低吸"——找连板股分歧后的缩量整理点。</p>
+
+<h2>二、AI的选股逻辑</h2>
+<p>龙虾系统今天盘前输出13只候选：</p>
+<table>
+<tr><th>维度</th><th>策略</th><th>候选数</th><th>竞价通过</th></tr>
+<tr><td>1.0</td><td>一进二</td><td>5只</td><td>0（冰点日竞价弱势）</td></tr>
+<tr><td>1.0</td><td>分歧低吸</td><td>3只</td><td>—（竞价不适用此策略）</td></tr>
+<tr><td>2.0</td><td>板块卡位</td><td>4只</td><td>0</td></tr>
+<tr><td>3.0</td><td>趋势低吸</td><td>0只</td><td>冰点熔断，不选</td></tr>
+</table>
+<p>竞价过滤全军覆没——冰点日竞价普遍弱势，一进二需要高开6%-10%，今天最高只到+3.45%。但<strong>分歧低吸不看竞价</strong>，它看的是盘中K线形态。</p>
+
+<h2>三、盘中决策：三孚股份的买点触发</h2>
+<div class="box box-g">
+<strong>三孚股份 (603938)</strong> · 3连板 · 化学原料 · 1.0分歧低吸<br>
+买点条件：股价在MA5与MA10之间 + 缩量17%（低于均量） + 当日微跌-1.01%<br>
+<strong>触发时间：</strong>盘中 · <strong>买入价：</strong>50.73 · <strong>仓位：</strong>4300股（约21.5万）
+</div>
+<p>分歧低吸的核心逻辑是：<strong>连板股在分歧日缩量整理，说明主力未出货</strong>。MA5/MA10之间的位置意味着短期趋势未破坏，缩量意味着观望而非抛售。</p>
+<p>但我们要诚实面对一个问题：<strong>冰点日整体成功率本身就低</strong>。今天跌停69只，市场抛压巨大，任何买入都面临系统性风险。5成仓位上限就是为了控制这种风险。</p>
+
+<h2>四、催化事件的额外考量</h2>
+<div class="box box-b">
+<strong>近期催化：</strong>5月27日腾讯Hy3商用（大模型方向）、5-6月AIDC密集招标（液冷/IDC方向）<br>
+今天候选池中13只全部标注了催化事件，其中半导体方向有6家涨停支撑。
+</div>
+<p>催化日历是今天刚修复的功能。之前催化信息只是"打印出来看"，没有写入候选池JSON参与选股。今天修复后候选股多了催化标注，但<strong>催化权重尚未量化</strong>——这是需要后续验证的变量。</p>
+
+<h2>五、今日结论与待验证假设</h2>
+<p><strong>结论</strong>：冰点日1.0分歧低吸触发了一只标的。这是方法论在极端环境下的第一次实盘测试。</p>
+<p><strong>待验证假设</strong>：</p>
+<p>1️⃣ 分歧低吸在冰点日的成功率是否显著低于高潮期？（需要10+次冰点日样本）</p>
+<p>2️⃣ 催化事件权重能否提升选股准确率？（需A/B对比）</p>
+<p>3️⃣ 三孚股份明天表现如何？1.0维度第2天，硬止损-5%，时间止损第3天未涨停强制卖出。</p>
+<blockquote>明天继续记录。一只股票的结果不重要，重要的是方法论在足够多次验证后的命中率。</blockquote>`
+  },
+  '0521': {
+    tags: [{t:'止损复盘',c:'tag-yellow'},{t:'3.0趋势低吸',c:'tag-red'},{t:'系统bug',c:'tag-blue'}],
+    title: '华工科技止损-3.2%：3.0趋势低吸在冰点区的致命盲区',
+    meta: '2026年5月21日 · 6 min read',
+    body: `<blockquote>记录失败比记录成功更重要。这次止损暴露了3.0维度在冰点区的结构性缺陷。</blockquote>
+
+<h2>一、发生了什么</h2>
+<p>华工科技今天止损出局，亏损3.2%。这是3.0维度"趋势低吸"策略的第一次失败案例。</p>
+<div class="box box-r">
+<strong>华工科技 (000988)</strong> · 3.0趋势低吸<br>
+买入原因：超级短缺赛道（光模块），回踩MA20附近<br>
+止损价触发：跌破MA20且成交量放大 → 确认趋势破坏<br>
+<strong>亏损：-3.2%</strong>
+</div>
+
+<h2>二、根本原因：冰点区3.0本应熔断</h2>
+<p>复盘后发现，这次失败的本质不是策略逻辑错误，而是<strong>系统没有严格执行冰点区3.0熔断规则</strong>。</p>
+<p>根据规则，涨跌家数低于1500时，3.0维度应该完全停止操作（冰点熔断）。但5月20日买入时，系统判定虽然情绪处于冰点，却未阻止3.0维度的买入信号执行。</p>
+<div class="box box-b">
+<strong>Bug根因：</strong>冰点区仓位限制只检查了总仓位上限（5成），没有检查3.0维度的独立熔断条件。<br>
+<strong>修复：</strong>在买入前增加维度熔断预检——如果当前情绪判定3.0熔断，则直接拒绝3.0维度买入，不论总仓位。
+</div>
+
+<h2>三、教训固化</h2>
+<p>1️⃣ <strong>规则≠执行</strong>：规则文档写了"冰点3.0熔断"，但代码没有实现这个检查。审计不能只看文档，必须验证代码路径。</p>
+<p>2️⃣ <strong>止损逻辑本身是正确的</strong>：MA20破位+放量→趋势确认破坏→止损。3.2%的亏损在可控范围内，说明止损机制有效。</p>
+<p>3️⃣ <strong>真正的亏损来自"不该买却买了"</strong>，而不是"买了之后跌了"。</p>
+<blockquote>这次-3.2%是学费。但如果3.0熔断规则执行了，这笔学费本不需要付。系统进化不是优化参数，而是堵住漏洞。</blockquote>`
+  },
+  '0520': {
+    tags: [{t:'系统进化',c:'tag-blue'},{t:'v2.4',c:'tag-blue'},{t:'参数化',c:'tag-yellow'}],
+    title: '规则体系v2.4审计：从16处取价bug到全量参数化',
+    meta: '2026年5月20日 · 10 min read',
+    body: `<h2>一、16处取价bug：盈亏计算全部偏移</h2>
+<p>今天做了一件重要的事——全量审计规则体系。发现了qt.gtimg.cn接口的一个系统性bug：</p>
+<div class="box box-r">
+<strong>根因：</strong>qt.gtimg.cn返回字段中，p[3]是<strong>昨收</strong>，p[4]是<strong>当前价</strong>（盘中）。但全系统16处代码用p[3]取价格。<br>
+<strong>影响：</strong>所有盈亏计算、涨停价判定、模拟持仓显示都偏移。例如艾华集团显示-0.92%，实际应为+8.97%。<br>
+<strong>修复：</strong>16处代码全部改为p[4]取现价，p[3]取昨收。涉及8个文件。
+</div>
+
+<h2>二、更深层的问题：阈值散落</h2>
+<p>16处bug只是表象。审计中发现了一个更严重的架构问题：</p>
+<p><strong>阈值散落在3个地方</strong>：lobster-rules.md（规则文档）、lobster-config.json（配置文件）、各Python脚本硬编码。同一个参数在不同地方值不同，改一个忘改另一个。</p>
+<div class="box box-b">
+<strong>v2.4解决方案：</strong>所有阈值参数化写入lobster-config.json，Python脚本统一从config读取，规则文档只写逻辑不写数值。<br>
+<strong>示例：</strong>情绪区间阈值统一参数化，新增1500-2000区间（1.0主导+3.0熔断）。
+</div>
+
+<h2>三、审计清单</h2>
+<table>
+<tr><th>检查项</th><th>结果</th><th>修复</th></tr>
+<tr><td>取价字段</td><td class="loss">16处错误</td><td class="win">已修复</td></tr>
+<tr><td>阈值一致性</td><td class="loss">3处冲突</td><td class="win">参数化统一</td></tr>
+<tr><td>JSON格式</td><td class="loss">2处语法错误</td><td class="win">已修复</td></tr>
+<tr><td>版本号</td><td class="loss">4处未更新</td><td class="win">统一v2.4</td></tr>
+</table>
+<blockquote>规则审计不是一次性事件。v2.4之后，每日进化任务新增了连通性扫描，确保cron任务间的数据流不断层。</blockquote>`
+  },
+  '0519': {
+    tags: [{t:'正向验证',c:'tag-green'},{t:'1.0分歧低吸',c:'tag-blue'},{t:'命中率',c:'tag-yellow'}],
+    title: '京能电力+7.26%：一进二逻辑在高潮期的第一次验证',
+    meta: '2026年5月19日 · 7 min read',
+    body: `<h2>一、龙虾系统运行以来第一次正向验证</h2>
+<p>今天京能电力通过1.0分歧低吸逻辑选中，最终涨了+7.26%。这是系统从5月16日启动以来，第一次拿到有意义的正向验证。</p>
+<div class="box box-g">
+<strong>京能电力 (600578)</strong> · 1.0分歧低吸<br>
+选股逻辑：连板股分歧日缩量整理 + 催化事件（电力板块）<br>
+<strong>结果：+7.26% ✅</strong>
+</div>
+
+<h2>一胜一负：同一框架，不同结果</h2>
+<p>但同日选出的蔚蓝锂芯跌了-2.01%：</p>
+<div class="box box-r">
+<strong>蔚蓝锂芯 (002245)</strong> · 1.0一进二<br>
+选股逻辑：首板次日竞价量比达标 + 元件板块热度<br>
+<strong>结果：-2.01% ❌</strong>（规则判定分歧过大，应放弃但系统仍标记为候选）
+</div>
+
+<h2>差异分析</h2>
+<table>
+<tr><th>维度</th><th>京能电力 ✅</th><th>蔚蓝锂芯 ❌</th></tr>
+<tr><td>策略</td><td>分歧低吸</td><td>一进二</td></tr>
+<tr><td>情绪环境</td><td>高潮期(2834涨)</td><td>高潮期(2834涨)</td></tr>
+<tr><td>板块支撑</td><td>电力(8家涨停)</td><td>元件(8家涨停)</td></tr>
+<tr><td>关键差异</td><td>连板+缩量=确认</td><td>首板+量比不足=弱信号</td></tr>
+</table>
+<p><strong>初步假设</strong>：在高潮期，分歧低吸的确定性高于一进二。因为分歧低吸基于"已有共识→分歧→再确认"的路径，而一进二基于"首板→能否继续"的赌注。</p>
+<blockquote>1/2=50%命中率，样本太小无统计意义。但这个差异方向值得持续观察。</blockquote>`
+  }
+};
+
+function showArticle(id) {
+  const a = articles[id];
+  if (!a) return;
+  const tagsHTML = a.tags.map(t => `<span class="AD-tag ${t.c}">${t.t}</span>`).join('');
+  document.getElementById('articleContent').innerHTML = `
+    <div class="AD-back" onclick="showList()">← 返回列表</div>
+    <div class="AD-tags">${tagsHTML}</div>
+    <h1>${a.title}</h1>
+    <div class="AD-meta">${a.meta.split('·').map(s => `<span>${s.trim()}</span><span class="sep"></span>`).join('')}</div>
+    ${a.body}
+  `;
+  document.querySelector('.page-list').classList.remove('active');
+  document.querySelector('.page-detail').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showList() {
+  document.querySelector('.page-list').classList.add('active');
+  document.querySelector('.page-detail').classList.remove('active');
+  window.scrollTo(0, 0);
+}
+
+// Smooth anchor scroll
+document.querySelectorAll('.Nav-links a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
+</script>
+
+</body>
+</html>
