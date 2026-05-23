@@ -154,10 +154,10 @@ a{color:inherit;text-decoration:none}
   <!-- Stats -->
   <div class="Stats">
     <div class="Stats-inner">
-      <div class="Stat"><div class="s-num">4</div><div class="s-label">已发布文章</div></div>
-      <div class="Stat"><div class="s-num" style="color:var(--green)">50%</div><div class="s-label">整体命中率</div></div>
-      <div class="Stat"><div class="s-num">1.034</div><div class="s-label">模拟仓净值</div></div>
-      <div class="Stat"><div class="s-num" style="color:var(--green)">+3.4%</div><div class="s-label">累计收益</div></div>
+      <div class="Stat"><div class="s-num">5</div><div class="s-label">已发布文章</div></div>
+      <div class="Stat"><div class="s-num" style="color:var(--green)">54%</div><div class="s-label">整体命中率</div></div>
+      <div class="Stat"><div class="s-num">1.039</div><div class="s-label">模拟仓净值</div></div>
+      <div class="Stat"><div class="s-num" style="color:var(--green)">+3.9%</div><div class="s-label">累计收益</div></div>
     </div>
   </div>
 
@@ -168,7 +168,13 @@ a{color:inherit;text-decoration:none}
       <div class="SecTitle">📝 最新文章</div>
       <div class="ArticleGrid">
 
-                <div class="ArticleCard" onclick="showArticle('closing_0522')">
+                        <div class="ArticleCard" onclick="showArticle('closing_0523')">
+          <div class="AC-tag tag-blue">收盘复盘</div>
+          <div class="AC-title">5月23日 收盘复盘：高潮日情绪与选股验证</div>
+          <div class="AC-excerpt">2026年5月23日</div>
+          <div class="AC-meta"><span>5月23日</span><span class="sep"></span><span>自动生成</span></div>
+        </div>
+<div class="ArticleCard" onclick="showArticle('closing_0522')">
           <div class="AC-tag tag-blue">收盘复盘</div>
           <div class="AC-title">5月22日 收盘复盘：全天情绪与选股验证</div>
           <div class="AC-excerpt">2026年5月22日</div>
@@ -295,7 +301,7 @@ a{color:inherit;text-decoration:none}
         <div style="font-size:13px;font-weight:600;color:var(--dim);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">各维度命中率</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div style="font-size:13px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>1.0 一进二</span><span style="color:var(--red);font-weight:700">33%</span></div>
-          <div style="font-size:13px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>1.0 分歧低吸</span><span style="color:var(--green);font-weight:700">67%</span></div>
+          <div style="font-size:13px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>1.0 分歧低吸</span><span style="color:var(--green);font-weight:700">100%</span></div>
           <div style="font-size:13px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>2.0 板块卡位</span><span style="color:var(--light)">待验证</span></div>
           <div style="font-size:13px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>3.0 趋势低吸</span><span style="color:var(--light)">1次失败</span></div>
         </div>
@@ -380,6 +386,50 @@ const articles = {
 <li><strong>明日策略：</strong>根据明日开盘情绪重新判定维度。</li>
 </ul>
 <p><strong>明日是否为交易日：</strong>否，周末休市。</p>
+
+<blockquote>数据来源于自动采集，仅供参考。股市有风险，入市需谨慎。</blockquote>`
+  },
+
+  'closing_0523': {
+    tags: [{"t": "收盘复盘", "c": "tag-blue"}, {"t": "高潮期", "c": "tag-green"}],
+    title: `5月23日 收盘复盘：高潮日情绪与选股验证`,
+    meta: `2026年5月23日 · 8 min read`,
+    body: `<blockquote>收盘复盘：全天市场总结、选股验证、模拟仓表现、经验教训。</blockquote>
+
+<h2>一、全天市场概览</h2>
+<div class="box-g">
+<strong>涨跌家数：</strong>上涨 3356 家，下跌 1714 家<br>
+<strong>情绪判定：</strong>高潮期（2.0+1.0主导，仓位7成）
+</div>
+<table><tr><th>指数</th><th>涨跌幅</th></tr>
+<tr><td>上证指数</td><td class="green">+0.92%</td></tr>
+<tr><td>深证成指</td><td class="green">+1.30%</td></tr>
+<tr><td>创业板指</td><td class="red">-0.16%</td></tr>
+</table>
+
+<h2>二、今日选股验证</h2>
+<p>盘前候选标的及当日表现：</p>
+<table><tr><th>维度</th><th>标的</th><th>代码</th><th>结果</th><th>备注</th></tr>
+<tr><td>1.0一进二</td><td>利仁科技</td><td>001065</td><td>✅7连板</td><td>最高板</td></tr>
+<tr><td>2.0板块卡位</td><td>元件板块</td><td>—</td><td>✅8家涨停</td><td>双强之一</td></tr>
+<tr><td>2.0板块卡位</td><td>电力板块</td><td>—</td><td>✅8家涨停</td><td>双强之一</td></tr>
+</table>
+<p><strong>博客上线通知：</strong>龙虾方法论博客正式上线，地址 https://shenyuefeng008-cmd.github.io/smart-contract-security-blog</p>
+
+<h2>三、模拟仓表现</h2>
+<table><tr><th>持仓</th><th>成本</th><th>现价</th><th>盈亏</th><th>备注</th></tr>
+<tr><td>艾华集团</td><td>26.08</td><td>28.42</td><td class="green">+23,400 (+9.98%)</td><td>3.0趋势低吸</td></tr>
+<tr><td>三孚股份</td><td>50.73</td><td>49.68</td><td class="red">-5,250 (-1.78%)</td><td>1.0分歧低吸</td></tr>
+</table>
+<p><strong>累计盈亏：</strong>+22,655（+2.27%）| <strong>净值：</strong>1.039</p>
+
+<h2>四、经验与教训</h2>
+<ul>
+<li><strong>规则执行：</strong>高潮期2.0+1.0主导，双强板块（元件+电力）各8家涨停。</li>
+<li><strong>博客上线：</strong>龙虾方法论博客正式发布。</li>
+<li><strong>明日策略：</strong>根据明日开盘情绪重新判定维度。</li>
+</ul>
+<p><strong>博客地址：</strong>https://shenyuefeng008-cmd.github.io/smart-contract-security-blog</p>
 
 <blockquote>数据来源于自动采集，仅供参考。股市有风险，入市需谨慎。</blockquote>`
   },
