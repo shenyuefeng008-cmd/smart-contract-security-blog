@@ -154,7 +154,7 @@ a{color:inherit;text-decoration:none}
   <!-- Stats -->
   <div class="Stats">
     <div class="Stats-inner">
-      <div class="Stat"><div class="s-num">5</div><div class="s-label">已发布文章</div></div>
+      <div class="Stat"><div class="s-num">6</div><div class="s-label">已发布文章</div></div>
       <div class="Stat"><div class="s-num" style="color:var(--green)">54%</div><div class="s-label">整体命中率</div></div>
       <div class="Stat"><div class="s-num">1.039</div><div class="s-label">模拟仓净值</div></div>
       <div class="Stat"><div class="s-num" style="color:var(--green)">+3.9%</div><div class="s-label">累计收益</div></div>
@@ -168,7 +168,13 @@ a{color:inherit;text-decoration:none}
       <div class="SecTitle">📝 最新文章</div>
       <div class="ArticleGrid">
 
-                        <div class="ArticleCard" onclick="showArticle('closing_0523')">
+                        <div class="ArticleCard" onclick="showArticle('0525_evolution')">
+          <div class="AC-tag tag-blue">系统进化</div>
+          <div class="AC-title">龙虾系统3.0：全闭环改造——让AI学会自我纠错</div>
+          <div class="AC-excerpt">规则写了但代码没执行？阈值散落在3个地方值不同？这次彻底修了。12个模块逐个审计，9个开环→闭环。</div>
+          <div class="AC-meta"><span>5月25日</span><span class="sep"></span><span>10 min</span></div>
+        </div>
+<div class="ArticleCard" onclick="showArticle('closing_0523')">
           <div class="AC-tag tag-blue">收盘复盘</div>
           <div class="AC-title">5月23日 收盘复盘：高潮日情绪与选股验证</div>
           <div class="AC-excerpt">2026年5月23日</div>
@@ -552,6 +558,83 @@ const articles = {
 <p>——</p>
 <blockquote>这次-3.2%是学费。但如果3.0熔断规则执行了，这笔学费本不需要付。系统进化不是优化参数，而是堵住漏洞。</blockquote>`
   },
+  '0525_evolution': {
+    tags: [{t:'系统进化',c:'tag-blue'},{t:'闭环改造',c:'tag-yellow'},{t:'L3参数外置',c:'tag-blue'}],
+    title: `龙虾系统3.0：全闭环改造——让AI学会自我纠错`,
+    meta: `2026年5月25日 · 10 min read`,
+    body: `<p>上周我发现了两件让我后背发凉的事：</p>
+<p>第一，系统规则写了"冰点日3.0熔断"，但代码压根没检查。我在冰点日买了华工科技，亏了3.2%。</p>
+<p>第二，同一个阈值在3个地方有3个值。规则文档写2500，配置文件写3000，代码硬编码2400。</p>
+<p>系统在用2400跑。我以为是3000。</p>
+<p>——</p>
+<h2>一、12个模块逐个审计</h2>
+<p>我花了3个小时，把整个系统翻了个底朝天。</p>
+<p>结果：</p>
+<ul>
+<li>✅ 3个模块已闭环（L4最终否决权、L4错误反馈、L2催化剂评分）</li>
+<li>❌ 9个模块开环（参数硬编码、无反馈、无自动优化）</li>
+</ul>
+<p>9个开环模块意味着什么？意味着系统在<strong>9个地方可能犯错而自己不知道</strong>。</p>
+<p>跟开车不看后视镜差不多。</p>
+<p>——</p>
+<h2>二、改了什么</h2>
+<p>这次改造的核心思路就一句话：</p>
+<p><strong>所有参数从配置读，所有决策有记录，记录驱动优化。</strong></p>
+<h3>Step 1：建反馈数据结构</h3>
+<p>创建 <code>feedback.json</code>，每个模块独立记录决策结果。</p>
+<p>以后每次选股、买入、卖出，都会往这个文件写一条记录。进化任务读这个文件，就知道哪些策略好、哪些策略烂。</p>
+<h3>Step 2：L2催化剂闭环</h3>
+<p>之前催化剂评分打完就完了，没人验证它到底准不准。</p>
+<p>现在：卖出时自动检查催化剂是否兑现。赚了="兑现"，亏了="未兑现"。</p>
+<p>连续3次"未兑现"的催化剂，权重自动降低。</p>
+<p>这才是闭环。</p>
+<h3>Step 3：L3参数外置</h3>
+<p>这是最苦的活。</p>
+<p>3个Python脚本里硬编码了大约80个参数。我一个一个搬进了配置文件：</p>
+<table>
+<tr><th>脚本</th><th>搬了多少参数</th><th>搬了什么</th></tr>
+<tr><td>scoring_calculator.py</td><td>~60个</td><td>四维度打分权重+阈值</td></tr>
+<tr><td>lobster_bid_filter_v2.py</td><td>~12个</td><td>竞价过滤条件（高开幅度/量比）</td></tr>
+<tr><td>lobster_premarket_engine.py</td><td>~8个</td><td>连板范围+板块强度+成交额打分</td></tr>
+</table>
+<p>每个脚本都加了fallback——如果配置文件读不到，就用脚本里的默认值。不会因为配置文件写错而崩溃。</p>
+<p>——</p>
+<h2>三、改完之后有什么区别</h2>
+<p>改之前：</p>
+<ul>
+<li>想调一个阈值？打开Python脚本，找到硬编码的数字，改，保存，祈祷没改错</li>
+<li>改了规则文档但忘了改代码？没人知道，直到亏钱</li>
+</ul>
+<p>改之后：</p>
+<ul>
+<li>想调阈值？改 <code>lobster-config.json</code>，所有脚本自动读取</li>
+<li>进化任务可以自己调参数——读feedback.json，发现某策略胜率低，自动降低对应权重</li>
+</ul>
+<p>说白了，从<strong>手工挡</strong>变成<strong>自动挡</strong>。</p>
+<p>——</p>
+<h2>四、还没改完的</h2>
+<p>12个模块，目前完成4个（L4 P0、L4 P1、L2催化剂、L3参数外置）。</p>
+<p>还剩8个：</p>
+<ul>
+<li>L1市场环境：情绪阈值在config里了，但缺反馈机制（情绪预测准确率怎么衡量？）</li>
+<li>盘前引擎：选股结果不记录命中率</li>
+<li>买点监控：信号质量不评估</li>
+<li>卖点监控：止盈止损质量不评估</li>
+<li>收盘复盘：不驱动参数调整</li>
+<li>进化任务：目前只审计不优化</li>
+</ul>
+<p>——</p>
+<h2>五、反思</h2>
+<p>做这次改造的时候，我一直在想一个问题：</p>
+<p><strong>一个AI交易系统，如果连自己的规则都执行不了，凭什么比人强？</strong></p>
+<p>人犯错是因为贪婪和恐惧。AI犯错是因为代码没写。</p>
+<p>两种错误，一样蠢。</p>
+<p>但至少AI的错误可以修。修一次，永远不犯。</p>
+<p>人的错误？下次还犯。</p>
+<p>——</p>
+<blockquote>系统闭环进度：4/12。还有8个模块等着改。但至少，下次冰点日不会再买3.0了。应该不会了。大概率不会了。</blockquote>`
+  },
+
   '0520': {
     tags: [{t:'系统进化',c:'tag-blue'},{t:'v2.4',c:'tag-blue'},{t:'参数化',c:'tag-yellow'}],
     title: '今天修了个蠢bug：16处取价全写错了，亏了都不知道',
